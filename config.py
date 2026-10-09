@@ -19,6 +19,7 @@ FALLBACK = ('Maaf, informasi tersebut tidak ditemukan pada buku panduan. '
 def get_embedding():
     return HuggingFaceEmbedding(
         model_name=EMBEDDING_MODEL,
+        device='cpu',
         query_instruction='query: ',
         text_instruction='passage: ',
     )
