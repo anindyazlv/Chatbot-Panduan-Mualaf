@@ -1,7 +1,7 @@
 import json
 import pathlib
 
-import pymupdf 
+import PyMuPDFReader 
 import streamlit as st
 import torch
 from llama_index.core import Settings, StorageContext, load_index_from_storage
@@ -68,7 +68,7 @@ def load_index(version):
 @st.cache_data(show_spinner=False)
 def render_page(file_name, page_no):
     try:
-        with pymupdf.open(pathlib.Path(config.DATA_DIR) / file_name) as doc:
+        with PyMuPDFReader.open(pathlib.Path(config.DATA_DIR) / file_name) as doc:
             return doc[page_no - 1].get_pixmap(dpi=110).tobytes('png')
     except Exception:
         return None
