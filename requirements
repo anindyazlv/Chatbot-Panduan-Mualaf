@@ -2,7 +2,7 @@ streamlit
 torch
 transformers
 sentence-transformers
-pymupdf
+PyMuPDF
 llama-index-core
 llama-index-llms-huggingface
 llama-index-embeddings-huggingface
