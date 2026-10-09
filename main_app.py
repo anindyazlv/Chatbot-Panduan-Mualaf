@@ -35,11 +35,19 @@ Jawaban:'''.replace('__FALLBACK__', config.FALLBACK)
 def load_llm():
     tokenizer = AutoTokenizer.from_pretrained(config.LLM_MODEL)
     dtype = torch.float16 if DEVICE == 'cuda' else torch.float32
-    model = AutoModelForCausalLM.from_pretrained(config.LLM_MODEL, torch_dtype=dtype).to(DEVICE)
+    model = AutoModelForCausalLM.from_pretrained(
+        config.LLM_MODEL,
+        dtype=dtype
+    ).to(DEVICE)
     model.eval()
-    return HuggingFaceLLM(context_window=4096, max_new_tokens=256,
-                          generate_kwargs={'do_sample': False},
-                          system_prompt=SYSTEM_PROMPT, tokenizer=tokenizer, model=model)
+    return HuggingFaceLLM(
+        context_window=4096,
+        max_new_tokens=256,
+        generate_kwargs={'do_sample': False},
+        system_prompt=SYSTEM_PROMPT,
+        tokenizer=tokenizer,
+        model=model,
+    )
 
 
 @st.cache_resource(show_spinner='Memuat model embedding...')
