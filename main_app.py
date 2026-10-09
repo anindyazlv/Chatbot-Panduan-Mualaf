@@ -1,7 +1,7 @@
 import json
 import pathlib
 
-import pymupdf  # PyMuPDF
+import pymupdf 
 import streamlit as st
 import torch
 from llama_index.core import Settings, StorageContext, load_index_from_storage
