@@ -1,3 +1,4 @@
+
 import json
 import pathlib
 
@@ -12,7 +13,10 @@ from transformers import AutoModelForCausalLM, AutoTokenizer
 
 import config
 
-st.set_page_config(page_title='Chatbot Panduan Mualaf', layout='wide')
+st.set_page_config(
+    page_title='Chatbot Panduan Mualaf',
+    layout='wide'
+)
 
 DEVICE = 'cuda' if torch.cuda.is_available() else 'cpu'
 
@@ -37,30 +41,35 @@ Jawaban:'''.replace('__FALLBACK__', config.FALLBACK)
 
 # ============================================================
 # MODEL LLM
+# Model baru dimuat ketika pengguna mengirim pertanyaan.
+# Model disimpan dalam cache setelah berhasil dimuat.
 # ============================================================
 
 @st.cache_resource(show_spinner='Memuat model bahasa...')
 def load_llm():
-    tokenizer = AutoTokenizer.from_pretrained(config.LLM_MODEL)
-
-    dtype = torch.float16 if DEVICE == 'cuda' else torch.float32
+    tokenizer = AutoTokenizer.from_pretrained(
+        config.LLM_MODEL
+    )
 
     model = AutoModelForCausalLM.from_pretrained(
         config.LLM_MODEL,
-        dtype=dtype
-    ).to(DEVICE)
+        dtype=torch.float32,
+        low_cpu_mem_usage=True,
+    )
 
     model.eval()
 
     return HuggingFaceLLM(
-        context_window=4096,
-        max_new_tokens=256,
+        context_window=2048,
+        max_new_tokens=128,
         generate_kwargs={
-            'do_sample': False
+            'do_sample': False,
+            'use_cache': True,
         },
         system_prompt=SYSTEM_PROMPT,
         tokenizer=tokenizer,
         model=model,
+        device_map='cpu',
     )
 
 
@@ -127,7 +136,7 @@ def render_page(file_name, page_no):
 
             return doc[page_index].get_pixmap(
                 dpi=110
-            ).tobytes("png")
+            ).tobytes('png')
 
     except Exception as e:
         print(f'Gagal merender halaman PDF: {e}')
@@ -193,9 +202,7 @@ def show_sources(nodes, expanded):
                 f'(skor {score})'
             )
 
-            st.write(
-                node.node.get_content()
-            )
+            st.write(node.node.get_content())
 
             image = render_page(
                 meta.get('file_name'),
@@ -236,17 +243,14 @@ with st.sidebar:
         )
 
         manifest = json.loads(
-            path.read_text(
-                encoding='utf-8'
-            )
+            path.read_text(encoding='utf-8')
         )
 
         n_pages = manifest['pages_indexed']
         created = manifest['created_at']
 
         st.caption(
-            f'{n_pages} halaman terindeks, '
-            f'dibuat {created}'
+            f'{n_pages} halaman terindeks, dibuat {created}'
         )
 
     use_llm = st.checkbox(
@@ -286,43 +290,13 @@ st.warning(
 # LOAD INDEX
 # ============================================================
 
-index = (
-    load_index(version)
-    if version
-    else None
-)
+index = load_index(version) if version else None
 
 if index is None:
     st.info(
-        'Belum ada indeks. '
-        'Jalankan build_index.py terlebih dahulu.'
+        'Belum ada indeks. Jalankan build_index.py terlebih dahulu.'
     )
     st.stop()
-
-
-# ============================================================
-# LOAD LLM AT STARTUP
-# ============================================================
-
-llm = None
-
-if use_llm:
-    try:
-        llm = load_llm()
-
-    except Exception as e:
-        st.error(
-            'Model bahasa gagal dimuat. '
-            'Silakan periksa traceback di bawah.'
-        )
-        st.exception(e)
-
-        st.warning(
-            'Chatbot tetap dapat digunakan tanpa model bahasa '
-            'dengan menonaktifkan opsi "Susun jawaban dengan model bahasa".'
-        )
-
-        use_llm = False
 
 
 # ============================================================
@@ -331,7 +305,6 @@ if use_llm:
 
 if 'messages' not in st.session_state:
     st.session_state.messages = []
-
 
 for msg in st.session_state.messages:
     with st.chat_message(msg['role']):
@@ -346,9 +319,7 @@ question = st.chat_input(
     'Tanyakan dasar-dasar Islam, misalnya tata cara wudu...'
 )
 
-
 if question:
-
     st.session_state.messages.append({
         'role': 'user',
         'content': question
@@ -358,14 +329,15 @@ if question:
         st.write(question)
 
     with st.chat_message('assistant'):
+        nodes = []
+        answer = config.FALLBACK
 
-        try:
-
-            if use_llm and llm is not None:
-
+        if use_llm:
+            try:
                 with st.spinner(
-                    'Mencari di buku dan menyusun jawaban...'
+                    'Memuat model dan menyusun jawaban...'
                 ):
+                    llm = load_llm()
 
                     engine = build_engine(
                         index,
@@ -384,12 +356,20 @@ if question:
                     else config.FALLBACK
                 )
 
-            else:
+            except Exception as e:
+                st.error(
+                    'Gagal memuat model atau memproses pertanyaan.'
+                )
+                st.exception(e)
 
-                with st.spinner(
-                    'Mencari informasi di buku...'
-                ):
+                st.warning(
+                    'Coba nonaktifkan opsi model bahasa di sidebar '
+                    'untuk memeriksa apakah retrieval masih berfungsi.'
+                )
 
+        else:
+            try:
+                with st.spinner('Mencari informasi di buku...'):
                     found = index.as_retriever(
                         similarity_top_k=top_k
                     ).retrieve(question)
@@ -399,31 +379,22 @@ if question:
                     ).postprocess_nodes(found)
 
                 answer = (
-                    'Berikut kutipan paling relevan '
-                    'dari buku panduan:'
+                    'Berikut kutipan paling relevan dari buku panduan:'
                     if nodes
                     else config.FALLBACK
                 )
 
-            st.write(answer)
+            except Exception as e:
+                st.error('Gagal mencari informasi dalam indeks.')
+                st.exception(e)
 
-            if nodes:
-                show_sources(
-                    nodes,
-                    expanded=not use_llm
-                )
+        st.write(answer)
 
-        except Exception as e:
-
-            st.error(
-                'Terjadi error saat memproses pertanyaan.'
+        if nodes:
+            show_sources(
+                nodes,
+                expanded=not use_llm
             )
-
-            st.exception(e)
-
-            answer = config.FALLBACK
-
-            st.write(answer)
 
     st.session_state.messages.append({
         'role': 'assistant',
