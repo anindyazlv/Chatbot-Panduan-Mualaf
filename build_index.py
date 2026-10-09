@@ -1,12 +1,14 @@
 import sys
+import pathlib
+import datetime
+import hashlib
+import json
 
 from llama_index.core import Document, Settings, VectorStoreIndex
 from llama_index.readers.file import PyMuPDFReader
 
 import config
 from preprocess import clean_page
-
-
 def load_pdf(path):
     reader = PyMuPDFReader()
     docs = []
@@ -36,7 +38,10 @@ def main(version):
     index = VectorStoreIndex.from_documents(docs, show_progress=True)
 
     out = pathlib.Path(config.INDEX_ROOT) / version
+    out.mkdir(parents=True, exist_ok=True)
+
     index.storage_context.persist(persist_dir=str(out))
+
     manifest = {
         'version': version,
         'created_at': datetime.datetime.now().isoformat(timespec='seconds'),
@@ -45,10 +50,16 @@ def main(version):
         'chunk_overlap': config.CHUNK_OVERLAP,
         'cleaning_version': config.CLEANING_VERSION,
         'pages_indexed': len(docs),
-        'pdf': {pdf.name: hashlib.sha256(pdf.read_bytes()).hexdigest()[:16]},
+        'pdf': {
+            pdf.name: hashlib.sha256(pdf.read_bytes()).hexdigest()[:16]
+        },
     }
+
     (out / 'manifest.json').write_text(
-        json.dumps(manifest, indent=2, ensure_ascii=False), encoding='utf-8')
+        json.dumps(manifest, indent=2, ensure_ascii=False),
+        encoding='utf-8'
+    )
+
     print('Indeks tersimpan di', out)
 
 
