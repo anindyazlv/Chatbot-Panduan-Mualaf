@@ -1,7 +1,7 @@
 import json
 import pathlib
 
-import PyMuPDFReader 
+import pymupdf
 import streamlit as st
 import torch
 from llama_index.core import Settings, StorageContext, load_index_from_storage
@@ -64,13 +64,20 @@ def load_index(version):
     ctx = StorageContext.from_defaults(persist_dir=str(pathlib.Path(config.INDEX_ROOT) / version))
     return load_index_from_storage(ctx)
 
-
 @st.cache_data(show_spinner=False)
 def render_page(file_name, page_no):
+    if not file_name or page_no is None:
+        return None
     try:
-        with PyMuPDFReader.open(pathlib.Path(config.DATA_DIR) / file_name) as doc:
-            return doc[page_no - 1].get_pixmap(dpi=110).tobytes('png')
-    except Exception:
+        pdf_path = pathlib.Path(config.DATA_DIR) / file_name
+        with pymupdf.open(pdf_path) as doc:
+            page_index = int(page_no) - 1
+            if page_index < 0 or page_index >= len(doc):
+                return None
+            return doc[page_index].get_pixmap(dpi=110).tobytes("png")
+
+    except Exception as e:
+        print(f"Gagal merender halaman PDF: {e}")
         return None
 
 
