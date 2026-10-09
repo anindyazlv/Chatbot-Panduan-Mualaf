@@ -1,9 +1,0 @@
-streamlit
-torch
-transformers
-sentence-transformers
-PyMuPDF==1.26.7
-llama-index-core
-llama-index-llms-huggingface
-llama-index-embeddings-huggingface
-llama-index-readers-file
