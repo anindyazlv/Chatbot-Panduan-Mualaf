@@ -45,17 +45,25 @@ Jawaban:'''.replace('__FALLBACK__', config.FALLBACK)
 # Model disimpan dalam cache setelah berhasil dimuat.
 # ============================================================
 
-@st.cache_resource(show_spinner='Memuat model bahasa...')
+
+@st.cache_resource(show_spinner="Memuat model bahasa...")
 def load_llm():
     tokenizer = AutoTokenizer.from_pretrained(
         config.LLM_MODEL
     )
 
-    model = AutoModelForCausalLM.from_pretrained(
-        config.LLM_MODEL,
-        dtype=torch.float32,
-        low_cpu_mem_usage=True,
-    )
+    if DEVICE == "cuda":
+        model = AutoModelForCausalLM.from_pretrained(
+            config.LLM_MODEL,
+            torch_dtype=torch.float16,
+            device_map="auto",
+        )
+    else:
+        model = AutoModelForCausalLM.from_pretrained(
+            config.LLM_MODEL,
+            torch_dtype=torch.float32,
+        )
+        model.to(DEVICE)
 
     model.eval()
 
@@ -63,13 +71,12 @@ def load_llm():
         context_window=2048,
         max_new_tokens=128,
         generate_kwargs={
-            'do_sample': False,
-            'use_cache': True,
+            "do_sample": False,
+            "use_cache": True,
         },
         system_prompt=SYSTEM_PROMPT,
         tokenizer=tokenizer,
         model=model,
-        device_map='cpu',
     )
 
 
