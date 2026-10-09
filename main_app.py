@@ -1,4 +1,3 @@
-
 import json
 import pathlib
 
@@ -61,9 +60,9 @@ def load_llm():
     else:
         model = AutoModelForCausalLM.from_pretrained(
             config.LLM_MODEL,
-            torch_dtype=torch.float32,
+            torch_dtype=torch.bfloat16,
+            low_cpu_mem_usage=True,
         )
-        model.to(DEVICE)
 
     model.eval()
 
