@@ -8,7 +8,7 @@ TOP_K = 4
 SIM_CUTOFF = 0.820
 INDEX_ROOT = 'indexes'
 DATA_DIR = 'data'
-CLEANING_VERSION = 'c3'
+CLEANING_VERSION = 'c4'
 
 PDF_NAME = 'guide_book_for_new_muslims.pdf'
 EDITION = 'Second Edition 2014'
