@@ -26,8 +26,8 @@ Question -> retrieve top-k chunks -> drop chunks below similarity cutoff
 | Component | Choice |
 |---|---|
 | Framework | LlamaIndex |
-| Embedding model | `intfloat/multilingual-e5-base` |
-| Language model | `Qwen/Qwen2.5-0.5B-Instruct` |
+| Embedding model | `multilingual-e5-base` |
+| Language model | `Qwen2.5-0.5B-Instruct` |
 | PDF reader | PyMuPDF |
 | UI | Streamlit |
 
