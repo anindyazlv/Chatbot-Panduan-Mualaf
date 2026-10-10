@@ -32,7 +32,7 @@ Settings.embed_model = config.get_embedding()
 index = load_index_from_storage(
     StorageContext.from_defaults(persist_dir=str(index_path))
 )
-retriever = index.as_retriever(similarity_top_k=5)
+retriever = index.as_retriever(similarity_top_k=config.TOP_K)
 
 # Load evaluation dataset
 qa_path = pathlib.Path('qa_set.json')
@@ -82,7 +82,7 @@ if n == 0:
     print('No in-scope questions available to evaluate.')
     sys.exit(0)
 
-for k in (1, 3, 5):
+for k in (1, 3, config.TOP_K):
     hit = sum(1 for rank in ranks if rank is not None and rank <= k) / n
     print(f'Hit@{k}: {hit:.2%}')
 
@@ -96,4 +96,15 @@ print(
 print(
     'Average top score, out-of-scope:',
     round(sum(out_scope) / len(out_scope), 3) if out_scope else 'N/A',
+)
+
+# Similarity cutoff check
+print(
+    f'In-scope passing cutoff ({config.SIM_CUTOFF}):',
+    f'{sum(s >= config.SIM_CUTOFF for s in in_scope) / len(in_scope):.2%}',
+)
+print(
+    f'Out-of-scope rejected by cutoff ({config.SIM_CUTOFF}):',
+    f'{sum(s < config.SIM_CUTOFF for s in out_scope) / len(out_scope):.2%}'
+    if out_scope else 'N/A',
 )
