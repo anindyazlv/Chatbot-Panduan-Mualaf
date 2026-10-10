@@ -108,3 +108,12 @@ print(
     f'{sum(s < config.SIM_CUTOFF for s in out_scope) / len(out_scope):.2%}'
     if out_scope else 'N/A',
 )
+
+# Cutoff sweep
+for c in (0.82, 0.825, 0.83, 0.835, 0.84):
+    kept = sum(s >= c for s in in_scope) / len(in_scope)
+    rejected = sum(s < c for s in out_scope) / len(out_scope) if out_scope else 0
+    print(f'cutoff {c:.3f}: in-scope kept {kept:.0%}, out-of-scope rejected {rejected:.0%}')
+
+print('Max out-of-scope score:', round(max(out_scope), 3))
+print('Min in-scope score:', round(min(in_scope), 3))
