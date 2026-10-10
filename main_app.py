@@ -205,7 +205,7 @@ for msg in st.session_state.messages:
 
 
 # User query
-question = st.chat_input('Ask about the basics of Islam, e.g. how to perform wudhu...')
+question = st.chat_input('Ask about the basics of Islam, e.g. how to perform wudu...')
 
 if question:
     st.session_state.messages.append({'role': 'user', 'content': question})
