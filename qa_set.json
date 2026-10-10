@@ -1,6 +1,6 @@
 [
-  {"question": "Berapa kadar zakat harta yang dikeluarkan?", "keywords": ["2,5%"]},
-  {"question": "Berapa rakaat salat Magrib?", "keywords": ["tiga rakaat"]},
-  {"question": "Bagaimana tata cara tayamum?", "keywords": ["menepukkan kedua tangan"]},
-  {"question": "Bagaimana hukum asuransi syariah?", "keywords": null}
+  {"question": "What percentage of wealth is paid as zakat?", "keywords": ["2.5%"]},
+  {"question": "How many rakats are in the Maghrib prayer?", "keywords": ["three rak"]},
+  {"question": "How is tayammum performed?", "keywords": ["strike", "tayammum"]},
+  {"question": "What is the ruling on Islamic insurance?", "keywords": null}
 ]
