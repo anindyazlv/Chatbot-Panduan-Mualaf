@@ -181,7 +181,7 @@ with st.sidebar:
 
 
 # Main UI
-st.title('New Muslim Guide Chatbot')
+st.title('Mualaf Guide Chatbot')
 
 st.warning(
     'This chatbot only summarizes the Guide Book for New Muslims. '
