@@ -14,7 +14,7 @@ PDF_NAME = 'guide_book_for_new_muslims.pdf'
 EDITION = 'Second Edition 2014'
 FALLBACK = (
     'Sorry, that information was not found in the guidebook. '
-    'Please ask your Islamic Teacher or Mentor.'
+    'Please ask your islamic teacher or mentor.'
 )
 
 
