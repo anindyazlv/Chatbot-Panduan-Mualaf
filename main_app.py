@@ -26,6 +26,7 @@ Do not add evidence, rulings, or opinions that are not in the context.
 If the context contains steps, write them in order.
 If the answer is not in the context, answer exactly: __FALLBACK__
 Answer in the same language as the question, concisely and clearly.
+Summarize in your own words in 3 to 5 sentences; do not copy the context verbatim.
 
 Context:
 ---------------------
@@ -56,14 +57,13 @@ def load_llm():
     model.eval()
 
     return HuggingFaceLLM(
-        context_window=2048,
-        max_new_tokens=128,
+        context_window=4096,
+        max_new_tokens=384,
         generate_kwargs={'do_sample': False, 'use_cache': True},
         system_prompt=SYSTEM_PROMPT,
         tokenizer=tokenizer,
         model=model,
     )
-
 
 # Embedding model
 @st.cache_resource(show_spinner='Loading embedding model...')
