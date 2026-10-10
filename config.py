@@ -10,16 +10,17 @@ INDEX_ROOT = 'indexes'
 DATA_DIR = 'data'
 CLEANING_VERSION = 'c2'
 
-PDF_NAME = 'panduan_mualaf.pdf'
-EDISI = 'Content Association (1445 H)'
-FALLBACK = ('Maaf, informasi tersebut tidak ditemukan pada buku panduan. '
-            'Silakan tanyakan kepada ustaz atau pendamping mualaf Anda.')
+PDF_NAME = 'guide_book_for_new_muslims.pdf'
+EDITION = 'Second Edition 2014'
+FALLBACK = (
+    'Sorry, that information was not found in the guidebook. '
+    'Please ask your Islamic Teacher or Mentor.'
+)
 
 
 def get_embedding():
     return HuggingFaceEmbedding(
         model_name=EMBEDDING_MODEL,
-        device='cpu',
         query_instruction='query: ',
         text_instruction='passage: ',
     )
