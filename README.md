@@ -103,7 +103,7 @@ Settings live in `config.py`:
 | `SIM_CUTOFF` | Minimum similarity score for a chunk to be used (currently `0.82`, chosen from the cutoff sweep) |
 | `INDEX_ROOT`, `DATA_DIR` | Index and data folders |
 | `PDF_NAME`, `EDITION` | Source PDF file name and edition label |
-| `CLEANING_VERSION` | Label recorded in the manifest (currently `c3`); bump it when `preprocess.py` changes |
+| `CLEANING_VERSION` | Label recorded in the manifest (currently `c4`); bump it when `preprocess.py` changes |
 | `FALLBACK` | Message returned when no relevant passage is found |
 
 If you change the PDF, chunking, embedding model, or `preprocess.py`, rebuild the index. Changing only `SIM_CUTOFF`, `TOP_K`, or the language model does not require a rebuild.
